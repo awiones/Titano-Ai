@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="titano-n1 (1).jpg" alt="Titano-N1 Logo" width="400">
+</p>
+
 # Titano-N1
 
 Titano-N1 is a personal AI project focused on learning and experimenting with image recognition using deep learning. It is built with TensorFlow and ResNet50V2, providing tools for training, dataset management, and image classification.
