@@ -19,6 +19,10 @@ This project was created as a hands-on learning experience in AI and machine lea
 - `predict.py` - Runs image classification on an input image.
 - `download.py` - Downloads images for dataset creation.
 
+<p align="center">
+  <img src="hasil.PNG" alt="" width="100%">
+</p>
+
 ## Disclaimer
 This project is purely for educational purposes and experimentation in AI. It is not optimized for professional or large-scale applications.
 
