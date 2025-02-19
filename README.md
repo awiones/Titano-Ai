@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="titano-n1 (1).jpg" alt="Titano-N1 Logo" width="400">
+  <img src="https://github.com/awiones/Titano-Ai/blob/main/36186718000.png" alt="Titano-N1 Logo" width="400">
 </p>
 
 # Titano-N1
