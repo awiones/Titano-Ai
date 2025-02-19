@@ -1,9 +1,9 @@
 import os
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications import ResNet50V2, MobileNetV2
-from tensorflow.keras.layers import Input, Dense, GlobalAveragePooling2D, Dropout, BatchNormalization, Conv2D, MaxPooling2D, Flatten
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
+from tensorflow.keras.applications import ResNet50V2, MobileNetV2 # type: ignore
+from tensorflow.keras.layers import Input, Dense, GlobalAveragePooling2D, Dropout, BatchNormalization, Conv2D, MaxPooling2D, Flatten, LSTM, Reshape, TimeDistributed # type: ignore
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint # type: ignore
 import matplotlib.pyplot as plt
 import json
 
@@ -115,6 +115,37 @@ def create_deep_model(input_shape, num_classes):
     outputs = Dense(num_classes, activation='softmax')(x)
     return tf.keras.Model(inputs=inputs, outputs=outputs)
 
+def create_ocr_model(input_shape, num_classes, max_text_length=20):
+    """Create a model for text recognition"""
+    inputs = Input(shape=input_shape)
+    
+    # CNN feature extraction
+    x = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
+    x = MaxPooling2D((2, 2))(x)
+    x = Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = MaxPooling2D((2, 2))(x)
+    x = Conv2D(128, (3, 3), activation='relu', padding='same')(x)
+    x = MaxPooling2D((2, 2))(x)
+    
+    # Calculate shape after convolutions
+    conv_shape = (input_shape[0] // 8, input_shape[1] // 8, 128)
+    
+    # Reshape for sequence processing
+    x = Reshape((conv_shape[0], conv_shape[1] * conv_shape[2]))(x)
+    
+    # RNN layers for sequence processing
+    x = LSTM(128, return_sequences=True)(x)
+    x = Dropout(0.25)(x)
+    x = LSTM(64)(x)
+    x = Dropout(0.25)(x)
+    
+    # Dense layers
+    x = Dense(256, activation='relu')(x)
+    x = Dropout(0.5)(x)
+    outputs = Dense(num_classes, activation='softmax')(x)
+    
+    return tf.keras.Model(inputs=inputs, outputs=outputs)
+
 if check_and_download_images():
     print("\nProceeding with training...\n")
 
@@ -126,61 +157,85 @@ try:
     num_classes, class_names = get_num_classes(train_dir, val_dir)
     print(f"Found {num_classes} matching classes: {class_names}")
     
-    print("\nSelect training mode:")
-    print("1. Light Training (Faster, less accurate)")
-    print("2. Deep Training (Slower, more accurate)")
+    print("\nSelect training type:")
+    print("1. Image Classification (Animals, Objects)")
+    print("2. Text Recognition (Words, Characters)")
+    print("3. Deep Training (Complex Scenes)")
     
     while True:
-        mode = input("\nEnter your choice (1-2): ").strip()
-        if mode in ['1', '2']:
+        mode = input("\nEnter your choice (1-3): ").strip()
+        if mode in ['1', '2', '3']:
             break
-        print("Invalid choice. Please enter 1 or 2.")
+        print("Invalid choice. Please enter 1, 2, or 3.")
     
-    train_datagen = ImageDataGenerator(
-        rescale=1./255,
-        rotation_range=40,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
-        zoom_range=0.2,
-        horizontal_flip=True,
-        fill_mode='nearest',
-        brightness_range=[0.7, 1.3],
-        validation_split=0.1
-    )
+    # Adjust image preprocessing based on training type
+    if mode == '2':  # Text Recognition
+        train_datagen = ImageDataGenerator(
+            rescale=1./255,
+            rotation_range=5,  # Less rotation for text
+            width_shift_range=0.1,
+            height_shift_range=0.1,
+            shear_range=0.1,
+            zoom_range=0.1,
+            fill_mode='constant',
+            cval=1.0  # White background for text
+        )
+        IMG_SIZE = (150, 400)  # Wider image for text
+        BATCH_SIZE = 16
+        EPOCHS = 30  # Text recognition needs more epochs
+        grayscale = True
+    else:  # Image Classification
+        train_datagen = ImageDataGenerator(
+            rescale=1./255,
+            rotation_range=40,
+            width_shift_range=0.2,
+            height_shift_range=0.2,
+            shear_range=0.2,
+            zoom_range=0.2,
+            horizontal_flip=True,
+            fill_mode='nearest',
+            brightness_range=[0.7, 1.3]
+        )
+        IMG_SIZE = (224, 224) if mode == '3' else (150, 150)
+        BATCH_SIZE = 16 if mode == '3' else 32
+        EPOCHS = 50 if mode == '3' else 20
+        grayscale = False
 
     val_datagen = ImageDataGenerator(rescale=1./255)
 
-    IMG_SIZE = 224 if mode == '2' else 150
-    BATCH_SIZE = 16 if mode == '2' else 32
-    EPOCHS = 50 if mode == '2' else 20
-
+    # Update generators for text recognition if needed
+    color_mode = 'grayscale' if grayscale else 'rgb'
     train_generator = train_datagen.flow_from_directory(
         train_dir,
-        target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=BATCH_SIZE,
+        target_size=IMG_SIZE,
+        batch_size=16,
         class_mode='categorical',
         classes=class_names,
         shuffle=True,
-        seed=42,
-        subset=None
+        color_mode=color_mode
     )
 
     val_generator = val_datagen.flow_from_directory(
         val_dir,
-        target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=BATCH_SIZE,
+        target_size=IMG_SIZE,
+        batch_size=16,
         class_mode='categorical',
         classes=class_names,
         shuffle=False,
-        seed=42
+        color_mode=color_mode
     )
 
-    input_shape = (IMG_SIZE, IMG_SIZE, 3)
-    model = create_deep_model(input_shape, num_classes) if mode == '2' else create_light_model(input_shape, num_classes)
+    # Create appropriate model based on type
+    input_shape = (*IMG_SIZE, 1 if grayscale else 3)
+    if mode == '2':
+        model = create_ocr_model(input_shape, num_classes)
+    elif mode == '3':
+        model = create_deep_model(input_shape, num_classes)
+    else:
+        model = create_light_model(input_shape, num_classes)
     
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001 if mode == '2' else 0.001),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001 if mode == '3' else 0.001),
         loss='categorical_crossentropy',
         metrics=['accuracy', tf.keras.metrics.TopKCategoricalAccuracy(k=3, name='top_3_accuracy')]
     )
@@ -191,7 +246,7 @@ try:
     callbacks = []
     
     if use_early_stopping:
-        patience = 5 if mode == '2' else 3
+        patience = 5 if mode == '3' else 3
         print(f"\nModel will stop training if validation loss doesn't improve for {patience} epochs")
         callbacks.append(
             EarlyStopping(
@@ -232,8 +287,10 @@ try:
     
     # Save model configuration
     model_config = {
-        'input_shape': [IMG_SIZE, IMG_SIZE],
-        'mode': 'deep' if mode == '2' else 'light',
+        'input_shape': list(IMG_SIZE),
+        'mode': mode,
+        'type': 'text' if mode == '2' else 'image',
+        'grayscale': grayscale,
         'class_names': class_names
     }
     
