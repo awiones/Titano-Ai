@@ -1,4 +1,3 @@
-
 # Titano-SR1 Documentation
 
 ## Overview
@@ -218,3 +217,38 @@ For issues and questions:
 ## License
 
 MIT License - See LICENSE file for details
+
+## Current Specifications
+
+### Model Parameters
+- Total Parameters: 2,847,744
+- Trainable Parameters: 2,846,208
+- Non-trainable Parameters: 1,536
+
+### Memory Usage
+- Model Size: 34.2 MB
+- Runtime Memory: ~256 MB
+- Database Size: Variable (~100 MB typical)
+
+### Training Status
+- Current Epoch: 20
+- Best Validation Loss: 1.247
+- Best Accuracy: 0.684
+- Perplexity: 3.48
+
+### Performance Metrics
+- Average Generation Speed: 12 tokens/second
+- Response Time: <2 seconds for 200 tokens
+- Memory System Access Time: ~50ms
+
+### Hardware Requirements
+- Minimum RAM: 4GB
+- Recommended RAM: 8GB
+- GPU: Optional (2GB VRAM recommended)
+- Storage: 500MB minimum
+
+### Current Capabilities
+- Vocabulary Size: 65 unique characters
+- Context Window: 100 characters
+- Maximum Generation Length: 1000 tokens
+- Supported Styles: narrative, dialogue, poetry, monologue
