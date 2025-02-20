@@ -220,35 +220,34 @@ MIT License - See LICENSE file for details
 
 ## Current Specifications
 
-### Model Parameters
-- Total Parameters: 2,847,744
-- Trainable Parameters: 2,846,208
-- Non-trainable Parameters: 1,536
+### Model Architecture
+- Embedding Layer: 100 dimensions
+- 3x LSTM layers with 256 units each
+- Dense layer with 512 units
+- Output Dense layer with softmax
+- Dropout rate: 0.2
 
-### Memory Usage
-- Model Size: 34.2 MB
-- Runtime Memory: ~256 MB
-- Database Size: Variable (~100 MB typical)
+### Training Configuration
+- Batch Size: 128
+- Initial Learning Rate: 1e-4
+- Target Epochs: 20
+- Validation Split: 0.1
+- Early Stopping patience: 5
 
-### Training Status
-- Current Epoch: 20
-- Best Validation Loss: 1.247
-- Best Accuracy: 0.684
-- Perplexity: 3.48
+### Optimizer Settings
+- AdamW optimizer
+- Weight decay: 0.01
+- Beta1: 0.9
+- Beta2: 0.999
 
-### Performance Metrics
-- Average Generation Speed: 12 tokens/second
-- Response Time: <2 seconds for 200 tokens
-- Memory System Access Time: ~50ms
-
-### Hardware Requirements
-- Minimum RAM: 4GB
-- Recommended RAM: 8GB
-- GPU: Optional (2GB VRAM recommended)
-- Storage: 500MB minimum
-
-### Current Capabilities
-- Vocabulary Size: 65 unique characters
+### Input/Output Dimensions
 - Context Window: 100 characters
+- Vocabulary Size: 65 characters
 - Maximum Generation Length: 1000 tokens
-- Supported Styles: narrative, dialogue, poetry, monologue
+
+### Technical Requirements
+- Python 3.8+
+- TensorFlow 2.x
+- NumPy
+- SQLite3
+
