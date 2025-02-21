@@ -1,10 +1,10 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.models import Sequential # type: ignore
-from tensorflow.keras.layers import LSTM, Dense, Embedding, Dropout, LayerNormalization, Add, Input, Concatenate # type: ignore
-from tensorflow.keras.preprocessing.sequence import pad_sequences # type: ignore
-from tensorflow.keras.utils import to_categorical # type: ignore
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint  # Added callbacks
+from tensorflow.keras.models import Sequential 
+from tensorflow.keras.layers import LSTM, Dense, Embedding, Dropout, LayerNormalization, Add, Input, Concatenate
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.utils import to_categorical 
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint 
 import os
 import requests
 import json
