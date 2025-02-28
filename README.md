@@ -2,9 +2,9 @@
   <img src="https://github.com/awiones/Titano-Ai/blob/main/36186718000.png" alt="Titano-N1 Logo" width="400">
 </p>
 
-# Titano-N1
+# Titano Ai
 
-Titano-N1 is a personal AI project focused on learning and experimenting with image recognition using deep learning. It is built with TensorFlow and ResNet50V2, providing tools for training, dataset management, and image classification.
+Titano is a personal AI project focused on learning and experimenting with image recognition using deep learning. It is built with TensorFlow and ResNet50V2, providing tools for training, dataset management, and image classification.
 
 ## About This Project
 This project was created as a hands-on learning experience in AI and machine learning. It is not intended for production use but serves as a foundation for exploring deep learning concepts, data preprocessing, and model training.
